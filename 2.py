@@ -12,7 +12,6 @@ if 10 > hour >= 0:
     else:
         print(f"0{hour}:{m}:{s}")
 
-
 if hour >= 10:
     if 10 > m >= 0:
         if 10 > s >= 0:
