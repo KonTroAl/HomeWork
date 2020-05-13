@@ -1,4 +1,5 @@
 sec = int(input("Enter time in seconds: "))
+
 hour = sec // 3600
 m = sec % 3600 // 60
 s = sec % 3600 % 60
