@@ -3,7 +3,7 @@
 с сайтов HH(обязательно) и/или Superjob(по желанию). Приложение должно анализировать несколько страниц сайта (также вводим через input или аргументы).
 Получившийся список должен содержать в себе минимум:
 - Наименование вакансии.
-- Предлагаемую зарплату (разносим в три поля: минимальная и максимальная и валюта. цифры преобразуем к цифрам).
+- Предлагаемую зарплату (разносим в три поля: минимальная и максимальная и валюта. Цифры преобразуем к цифрам).
 - Ссылку на саму вакансию.
 - Сайт, откуда собрана вакансия.
 По желанию можно добавить ещё параметры вакансии (например, работодателя и расположение).
@@ -11,6 +11,7 @@
 """
 import requests
 from bs4 import BeautifulSoup
+from pprint import pprint
 
 base_url = 'https://hh.ru'
 # vacancy = input('Enter vacancy: ')
@@ -26,5 +27,12 @@ if response.ok:
     result_list = []
 
     result = dom.findAll('div', {'class': 'vacancy-serp-item'})
-    print(len(result))
 
+    for item in result:
+        result_data = {}
+        vacancy_name = item.find('a').getText()
+        result_data['vacancy_name'] = vacancy_name
+
+        result_list.append(result_data)
+
+    pprint(result_list)
