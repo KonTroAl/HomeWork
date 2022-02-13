@@ -5,8 +5,8 @@
 
 """Скрипт для поиска всех альбомов определенного артиста. API = https://happi.dev/ """
 import requests
+from .key import KEY
 
-KEY = '260c4fkz3WOoLJRUCOvC8ocum1uKF3AaE6eHoPEA71F0BHiwRGw4GVoK'
 
 """Имя артиста для поиска альбома"""
 ARTIST = 'Linkin Park'
