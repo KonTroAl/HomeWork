@@ -10,18 +10,38 @@ client = MongoClient('localhost', 27017)
 db = client['vacancy_db']
 vacancy_collection = db.vacancy
 
-test_sum = 80000
-currency = 'руб.'
 
-vacancy_list = []
+def search_currency():
+    currency = {}
+    key = 1
+    for doc in vacancy_collection.find({}):
+        try:
+            if doc['currency'] in currency.values():
+                pass
+            else:
+                currency[key] = doc['currency']
+                key += 1
+        except KeyError:
+            pass
+    return currency
 
-for doc in vacancy_collection.find({'currency': currency,
-                                    '$or': [
-                                        {'min_salary': {'$gte': test_sum}},
-                                        {'max_salary': {'$gte': test_sum}}
-                                    ]
-                                    }):
-    vacancy_list.append(doc)
+
+def search_vacancy(currency_dict):
+    vacancy_list = []
+    currency_key = int(input('Choose currency (1: "USD", 2: "грн.", 3: "руб.", 4: "KZT", 5: "EUR"): '))
+    currency = currency_dict[currency_key]
+    test_sum = int(input('Enter salary: '))
+
+    for doc in vacancy_collection.find({'currency': currency,
+                                        '$or': [
+                                            {'min_salary': {'$gte': test_sum}},
+                                            {'max_salary': {'$gte': test_sum}}
+                                        ]
+                                        }):
+        vacancy_list.append(doc)
+
+    return vacancy_list
 
 
-pprint(vacancy_list)
+currency_dict = search_currency()
+pprint(search_vacancy(currency_dict))
