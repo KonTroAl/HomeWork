@@ -4,3 +4,24 @@
 (то есть цифра вводится одна, а запрос проверяет оба поля)
 """
 from pymongo import MongoClient
+from pprint import pprint
+
+client = MongoClient('localhost', 27017)
+db = client['vacancy_db']
+vacancy_collection = db.vacancy
+
+test_sum = 80000
+currency = 'руб.'
+
+vacancy_list = []
+
+for doc in vacancy_collection.find({'currency': currency,
+                                    '$or': [
+                                        {'min_salary': {'$gte': test_sum}},
+                                        {'max_salary': {'$gte': test_sum}}
+                                    ]
+                                    }):
+    vacancy_list.append(doc)
+
+
+pprint(vacancy_list)

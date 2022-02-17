@@ -8,13 +8,9 @@ from bs4 import BeautifulSoup
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError as dke
 
-PASSWORD = 'Rjcnz2706'
-
-
 client = MongoClient('localhost', 27017)
-db = client['vacancy_db']    # database
-vacancy_collection = db.vacancy        # collection
-
+db = client['vacancy_db']
+vacancy_collection = db.vacancy
 
 base_url = 'https://hh.ru'
 # vacancy = input('Enter vacancy: ')
@@ -83,5 +79,3 @@ while True:
             break
     else:
         break
-
-
