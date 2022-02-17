@@ -28,7 +28,7 @@ def search_currency():
 
 def search_vacancy(currency_dict):
     vacancy_list = []
-    currency_key = int(input('Choose currency (1: "USD", 2: "грн.", 3: "руб.", 4: "KZT", 5: "EUR"): '))
+    currency_key = int(input('Choose currency. Enter number of currency (1: "USD", 2: "грн.", 3: "руб.", 4: "KZT", 5: "EUR"): '))
     currency = currency_dict[currency_key]
     test_sum = int(input('Enter salary: '))
 
@@ -40,8 +40,10 @@ def search_vacancy(currency_dict):
                                         }):
         vacancy_list.append(doc)
 
+    print(f'Общее количество вакансий по заданным параметрам {vacancy_list}')
     return vacancy_list
 
 
 currency_dict = search_currency()
 pprint(search_vacancy(currency_dict))
+
