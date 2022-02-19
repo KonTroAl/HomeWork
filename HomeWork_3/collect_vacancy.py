@@ -65,8 +65,27 @@ while True:
             start_id += 1
 
             try:
-                vacancy_collection.insert_one(result_data)
-                count_of_new_vacancy += 1
+                db_list = []
+
+                db_dict = vacancy_collection.find({})
+
+                if db_dict:
+                    for doc in db_dict:
+                        db_list.append(doc['vacancy_link'])
+
+                    last_id = len(db_list)
+
+                    if result_data['vacancy_link'] in db_list:
+                        for item in vacancy_collection.find({'vacancy_link': result_data['vacancy_link']}):
+                            result_data['_id'] = item['_id']
+                            vacancy_collection.update_one({'_id': item['_id']}, {'$set': result_data})
+                    else:
+                        result_data['_id'] = last_id
+                        vacancy_collection.insert_one(result_data)
+                        count_of_new_vacancy += 1
+                else:
+                    vacancy_collection.insert_one(result_data)
+                    count_of_new_vacancy += 1
             except dke:
                 pass
 
