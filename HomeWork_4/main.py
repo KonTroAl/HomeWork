@@ -1,10 +1,10 @@
 """
 Написать приложение, которое собирает основные новости с сайта на выбор news.mail.ru, lenta.ru, yandex-новости.
 Для парсинга использовать XPath. Структура данных должна содержать:
-- название источника;
++ название источника;
 - наименование новости;
-- ссылку на новость;
-- дата публикации.
++ ссылку на новость;
++ дата публикации.
 Сложить собранные новости в БД
 Минимум один сайт, максимум - все три
 """
@@ -25,16 +25,46 @@ start_response = requests.get(url, headers=headers)
 
 dom_start = html.fromstring(start_response.text)
 
-news_links = []
 
-news_pictures_links = dom_start.xpath("//div[contains(@class, 'daynews__item')]/a/@href")
+def get_links():
+    news_links = []
+    news_pictures_links = dom_start.xpath("//div[contains(@class, 'daynews__item')]/a/@href")
 
-for link in news_pictures_links:
-    news_links.append(link)
+    for link in news_pictures_links:
+        news_links.append(link)
 
-news_ul_links = dom_start.xpath("//div[@class='js-module']/ul/li[@class='list__item']/a/@href")
+    news_ul_links = dom_start.xpath("//div[@class='js-module']/ul/li[@class='list__item']/a/@href")
 
-for link in news_ul_links:
-    news_links.append(link)
+    for link in news_ul_links:
+        news_links.append(link)
 
-pprint(len(news_links))
+    return news_links
+
+
+links_list = get_links()
+
+news_list = []
+
+
+for link in links_list:
+    news_dict = {}
+    news_dict['news_link'] = link
+
+    new_response = requests.get(link, headers=headers)
+    new_dom = html.fromstring(new_response.text)
+
+    date_source_items = new_dom.xpath("//span[@class='breadcrumbs__item']")
+    for item in date_source_items:
+        date = item.xpath("//span[@class='breadcrumbs__item']//span[@datetime]/@datetime")[0]
+        source = item.xpath("//span[@class='breadcrumbs__item']//span[@class='link__text']/text()")[0]
+        news_dict['date'] = date
+        news_dict['source'] = source
+
+    try:
+        title = new_dom.xpath("//div[contains(@class, 'hdr_collapse')]//h1[@class='hdr__inner']/text()")[0]
+        news_dict['title'] = title
+    except IndexError:
+        news_dict['title'] = 'None'
+    news_list.append(news_dict)
+
+pprint(news_list)
