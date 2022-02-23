@@ -32,3 +32,9 @@ news_pictures_links = dom_start.xpath("//div[contains(@class, 'daynews__item')]/
 for link in news_pictures_links:
     news_links.append(link)
 
+news_ul_links = dom_start.xpath("//div[@class='js-module']/ul/li[@class='list__item']/a/@href")
+
+for link in news_ul_links:
+    news_links.append(link)
+
+pprint(len(news_links))
