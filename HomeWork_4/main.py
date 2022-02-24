@@ -28,15 +28,23 @@ dom_start = html.fromstring(start_response.text)
 
 def get_links():
     news_links = []
-    news_pictures_links = dom_start.xpath("//div[contains(@class, 'daynews__item')]/a/@href")
+    news_pictures_links = dom_start.xpath("//div[contains(@class, 'daynews__item')]//a/@href")
 
     for link in news_pictures_links:
-        news_links.append(link)
+        news_link = link.split('.')
+        if 'https://sportmail' in news_link:
+            pass
+        else:
+            news_links.append(link)
 
-    news_ul_links = dom_start.xpath("//div[@class='js-module']/ul/li[@class='list__item']/a/@href")
+    news_ul_links = dom_start.xpath("//div[@class='js-module']/ul/li[@class='list__item']//a/@href")
 
     for link in news_ul_links:
-        news_links.append(link)
+        news_link = link.split('.')
+        if 'https://sportmail' in news_link:
+            pass
+        else:
+            news_links.append(link)
 
     return news_links
 
@@ -44,7 +52,6 @@ def get_links():
 links_list = get_links()
 
 news_list = []
-
 
 for link in links_list:
     news_dict = {}
@@ -60,11 +67,9 @@ for link in links_list:
         news_dict['date'] = date
         news_dict['source'] = source
 
-    try:
-        title = new_dom.xpath("//div[contains(@class, 'hdr_collapse')]//h1[@class='hdr__inner']/text()")[0]
-        news_dict['title'] = title
-    except IndexError:
-        news_dict['title'] = 'None'
+    title = new_dom.xpath("//div[contains(@class, 'hdr_collapse')]//h1[@class='hdr__inner']/text()")[0]
+    news_dict['title'] = title
+
     news_list.append(news_dict)
 
 pprint(news_list)
