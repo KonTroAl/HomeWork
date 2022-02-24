@@ -16,6 +16,10 @@ from lxml import html
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError as dke
 
+client = MongoClient('localhost', 27017)
+db = client['news_db']
+news_collection = db.news
+
 url = 'https://news.mail.ru'
 
 headers = {
@@ -24,6 +28,8 @@ headers = {
 start_response = requests.get(url, headers=headers)
 
 dom_start = html.fromstring(start_response.text)
+
+count_of_news = 0
 
 
 def get_links():
@@ -51,8 +57,6 @@ def get_links():
 
 links_list = get_links()
 
-news_list = []
-
 for link in links_list:
     news_dict = {}
     news_dict['news_link'] = link
@@ -70,6 +74,36 @@ for link in links_list:
     title = new_dom.xpath("//div[contains(@class, 'hdr_collapse')]//h1[@class='hdr__inner']/text()")[0]
     news_dict['title'] = title
 
-    news_list.append(news_dict)
+    try:
+        db_list = []
+
+        db_dict = news_collection.find({})
+
+        if db_dict:
+            for doc in db_dict:
+                db_list.append(doc['news_link'])
+
+            last_id = len(db_list)
+
+            if news_dict['news_link'] in db_list:
+                for item in news_collection.find({'news_link': news_dict['news_link']}):
+                    news_dict['_id'] = item['_id']
+                    news_collection.update_one({'_id': item['_id']}, {'$set': news_dict})
+            else:
+                news_dict['_id'] = last_id
+                news_collection.insert_one(news_dict)
+                count_of_news +=1
+        else:
+            news_collection.insert_one(news_dict)
+            count_of_news += 1
+    except dke:
+        pass
+
+print(f'В базу данных добавлено новостей: {count_of_news}')
+
+news_list = []
+
+for item in news_collection.find({}):
+    news_list.append(item)
 
 pprint(news_list)
