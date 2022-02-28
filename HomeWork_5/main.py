@@ -26,79 +26,119 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 import time
 from pprint import pprint
+from pymongo import MongoClient
+from pymongo.errors import DuplicateKeyError as dke
 
-chrome_options = Options()
-chrome_options.add_argument('start-maximized')
 
-s = Service('./chromedriver.exe')
-driver = webdriver.Chrome(service=s, options=chrome_options)
-# driver.implicitly_wait(10)
+def letter_link_collect():
+    href_list = []
 
-url = 'https://account.mail.ru/login?page=https%3A%2F%2Fe.mail.ru%2Fmessages%2Finbox%3Futm_source%3Dportal%26utm_medium%3Dmailbox%26utm_campaign%3De.mail.ru%26mt_click_id%3Dmt-veoz41-1645947375-108968048&allow_external=1'
+    for i in range(5):
+        letters = driver.find_elements(By.XPATH,
+                                       "//div[contains(@class, 'ReactVirtualized__Grid__innerScrollContainer')]/a")
+        for letter in letters:
+            if letter in href_list:
+                pass
+            else:
+                href_list.append(letter.get_attribute('href'))
+        actions = ActionChains(driver)
+        actions.move_to_element(letters[-1])
+        actions.perform()
+        time.sleep(2)
+    return href_list
 
-driver.get(url)
 
-login = 'study.ai_172@mail.ru'
-password = 'NextPassword172#'
+def letter_info_search(href_list):
+    count_of_letters = 0
+    start_id = 0
 
-wait = WebDriverWait(driver, 10)
-elem = wait.until(EC.presence_of_element_located((By.NAME, "username")))
+    for href in href_list:
+        driver.get(href)
 
-elem.send_keys(login)
-elem.send_keys(Keys.ENTER)
+        letter_dict = {}
 
-elem = wait.until(EC.presence_of_element_located((By.NAME, "password")))
-time.sleep(2)
-elem.send_keys(password)
-elem.send_keys(Keys.ENTER)
+        letter_dict['_id'] = start_id
 
-print()
-href_list = []
+        time.sleep(5)
+        letter_dict['letter_link'] = href
 
-time.sleep(5)
+        # letter_contact_el = driver.find_element(By.CLASS_NAME, "letter-contact")
+        # letter_contact = driver.find_element(By.CLASS_NAME, "letter-contact").text
+        letter_dict['letter_contact'] = driver.find_element(By.CLASS_NAME, "letter-contact").text
 
-for i in range(5):
-    letters = driver.find_elements(By.XPATH, "//div[contains(@class, 'ReactVirtualized__Grid__innerScrollContainer')]/a")
-    for letter in letters:
-        if letter in href_list:
+        # letter_date_el = driver.find_element(By.CLASS_NAME, "letter__date")
+        # letter_date = driver.find_element(By.CLASS_NAME, "letter__date").text
+        letter_dict['letter_date'] = driver.find_element(By.CLASS_NAME, "letter__date").text
+
+        # letter_header_el = driver.find_element(By.CLASS_NAME, 'thread-subject')
+        # letter_header = driver.find_element(By.CLASS_NAME, 'thread-subject').text
+        letter_dict['letter_header'] = driver.find_element(By.CLASS_NAME, 'thread-subject').text
+
+        # letter_text = driver.find_element(By.XPATH, "//div[@class='letter__body']//table")
+
+        letter_dict['letter_text'] = driver.find_element(By.XPATH, "//div[@class='letter__body']//table | //div[@class='letter__body']//div[@class='content_mr_css_attr']").text
+
+        try:
+            db_list = []
+
+            db_dict = letters_collection.find({})
+
+            if db_dict:
+                for doc in db_dict:
+                    db_list.append(doc['letter_link'].split('/?')[0])
+
+                last_id = len(db_list)
+                # print(letter_dict['letter_link'])
+                # print(db_list[12])
+
+                if letter_dict['letter_link'].split('/?')[0] in db_list:
+                    pass
+                else:
+                    letter_dict['_id'] = last_id
+                    letters_collection.insert_one(letter_dict)
+                    count_of_letters += 1
+            else:
+                letters_collection.insert_one(letter_dict)
+                count_of_letters += 1
+        except dke:
             pass
-        else:
-            href_list.append(letter.get_attribute('href'))
-    actions = ActionChains(driver)
-    actions.move_to_element(letters[-1])
-    actions.perform()
-    time.sleep(2)
 
-driver.get(href_list[0])
+    return count_of_letters
 
-letter_dict = {}
-"""
-- от кого
-- дата отправки
-- тема письма
-- текст письма полный
-"""
 
-time.sleep(5)
-letter_dict['letter_link'] = href_list[0]
-letter_contact_el = driver.find_element(By.CLASS_NAME, "letter-contact")
-letter_contact = letter_contact_el.text
-letter_dict['letter_contact'] = letter_contact
+if __name__ == '__main__':
 
-letter_date_el = driver.find_element(By.CLASS_NAME, "letter__date")
-letter_date = letter_date_el.text
-letter_dict['letter_date'] = letter_date
 
-letter_header_el = driver.find_element(By.CLASS_NAME, 'thread-subject')
-letter_header = letter_header_el.text
-letter_dict['letter_header'] = letter_header
+    client = MongoClient('localhost', 27017)
+    db = client['news_db']
+    letters_collection = db.letters
 
-letter = []
-letter_text_el = driver.find_elements(By.XPATH, "//div[@class='letter__body']//table//span")
-for item in letter_text_el:
-    letter.append(item.text)
+    chrome_options = Options()
+    chrome_options.add_argument('start-maximized')
 
-letter_dict['letter_text'] = letter
+    s = Service('./chromedriver.exe')
+    driver = webdriver.Chrome(service=s, options=chrome_options)
 
-pprint(letter_dict)
-driver.close()
+    url = 'https://account.mail.ru/login?page=https%3A%2F%2Fe.mail.ru%2Fmessages%2Finbox%3Futm_source%3Dportal%26utm_medium%3Dmailbox%26utm_campaign%3De.mail.ru%26mt_click_id%3Dmt-veoz41-1645947375-108968048&allow_external=1'
+
+    driver.get(url)
+
+    login = 'study.ai_172@mail.ru'
+    password = 'NextPassword172#'
+
+    wait = WebDriverWait(driver, 10)
+    elem = wait.until(EC.presence_of_element_located((By.NAME, "username")))
+
+    elem.send_keys(login)
+    elem.send_keys(Keys.ENTER)
+
+    elem = wait.until(EC.presence_of_element_located((By.NAME, "password")))
+    time.sleep(1)
+    elem.send_keys(password)
+    elem.send_keys(Keys.ENTER)
+
+    time.sleep(5)
+
+    print(f'В базу данных писем добавлено: {letter_info_search(letter_link_collect())}')
+
+    driver.close()
