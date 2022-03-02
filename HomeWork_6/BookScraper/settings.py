@@ -9,7 +9,7 @@
 
 BOT_NAME = 'BookScraper'
 
-SPIDER_MODULES = ['BookScraper.spiders']
+SPIDER_MODULES = ['HomeWork_6.BookScraper.spiders']
 NEWSPIDER_MODULE = 'BookScraper.spiders'
 
 LOG_ENABLED = True
