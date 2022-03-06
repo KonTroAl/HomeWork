@@ -2,13 +2,14 @@ from scrapy.crawler import CrawlerProcess
 from scrapy.settings import Settings
 
 import settings
-from spiders.leroymerlin import LeroymerlinSpider
+from HomeWork_7.LeroyMerlinParser.spiders.leroymerlin import LeroymerlinSpider
 
 if __name__ == '__main__':
     crawler_settings = Settings()
     crawler_settings.setmodule(settings)
 
     process = CrawlerProcess(settings=crawler_settings)
-    process.crawl(LeroymerlinSpider)
+    search = 'ковры'
+    process.crawl(LeroymerlinSpider, search=search)
 
     process.start()

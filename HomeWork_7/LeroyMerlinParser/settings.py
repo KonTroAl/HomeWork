@@ -66,7 +66,7 @@ COOKIES_ENABLED = True
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'LeroyMerlinParser.pipelines.LeroymerlinparserPipeline': 300,
+   'HomeWork_7.LeroyMerlinParser.pipelines.LeroymerlinparserPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
