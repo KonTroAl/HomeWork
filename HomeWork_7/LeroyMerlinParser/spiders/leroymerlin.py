@@ -23,10 +23,10 @@ class LeroymerlinSpider(scrapy.Spider):
         print()
         loader = ItemLoader(item=LeroymerlinparserItem(), response=response)
         loader.add_xpath('name', "//h1/text()")
-        loader.add_xpath('price', "//h1/text()")
-        loader.add_xpath('currency', "//h1/text()")
+        loader.add_xpath('price', "//span[@slot='price']/text()")
+        loader.add_xpath('currency', "//span[@slot='currency']/text()")
         loader.add_value('link', response.url)
-        loader.add_xpath('photos', 'response.xpath("//picture[@slot="pictures"]/source[contains(@media, "1024px")]/@scrset")')
+        loader.add_xpath('photos', '//picture[@slot="pictures"]/source[contains(@media, "1024px")]/@srcset')
         yield loader.load_item()
 
 

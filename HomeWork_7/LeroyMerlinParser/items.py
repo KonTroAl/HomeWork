@@ -8,8 +8,8 @@ from itemloaders.processors import MapCompose, Compose,TakeFirst
 
 def int_price(price):
     try:
-        result = int(price[0].replace(' ', ''))
-        return result
+        result = price[0].replace(' ', '')
+        return int(result)
     except:
         return price
 
