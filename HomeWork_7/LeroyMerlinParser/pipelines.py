@@ -11,3 +11,6 @@ from itemadapter import ItemAdapter
 class LeroymerlinparserPipeline:
     def process_item(self, item, spider):
         return item
+
+class LeroymerlinPhotosPipeline:
+    pass
