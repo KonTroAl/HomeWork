@@ -1,3 +1,4 @@
+import re
 import scrapy
 from scrapy.http import HtmlResponse
 from HomeWork_7.LeroyMerlinParser.items import LeroymerlinparserItem
@@ -21,12 +22,20 @@ class LeroymerlinSpider(scrapy.Spider):
 
     def parse_data(self, response: HtmlResponse):
         print()
+
+        headers_list = response.xpath('//dt//text()').getall()
+        char_list = response.xpath('//dd//text()').getall()
+        char_dict = dict(zip(headers_list, char_list))
+
+        print()
+
         loader = ItemLoader(item=LeroymerlinparserItem(), response=response)
         loader.add_xpath('name', "//h1/text()")
         loader.add_xpath('price', "//span[@slot='price']/text()")
         loader.add_xpath('currency', "//span[@slot='currency']/text()")
         loader.add_value('link', response.url)
         loader.add_xpath('photos', '//picture[@slot="pictures"]/source[contains(@media, "1024px")]/@srcset')
+        loader.add_value('characteristics', char_dict)
         yield loader.load_item()
 
 

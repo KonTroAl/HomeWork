@@ -13,6 +13,9 @@ def int_price(price):
     except:
         return price
 
+def fix_val_char(char_dict):
+    pass
+
 
 class LeroymerlinparserItem(scrapy.Item):
     # define the fields for your item here like:
@@ -22,4 +25,6 @@ class LeroymerlinparserItem(scrapy.Item):
     link = scrapy.Field()
     photos = scrapy.Field()
     _id = scrapy.Field()
+    characteristics = scrapy.Field(input_processor=Compose(fix_val_char))
+
 

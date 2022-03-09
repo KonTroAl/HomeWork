@@ -51,5 +51,5 @@ class LeroymerlinPhotosPipeline(ImagesPipeline):
         return item
 
     def file_path(self, request, response=None, info=None, *, item=None):
-        photos_path = f'/{item["name"]}/ ' + os.path.basename(urlparse(request.url).path)
+        photos_path = f'/{item["name"]}/' + os.path.basename(urlparse(request.url).path)
         return photos_path
