@@ -13,8 +13,16 @@ def int_price(price):
     except:
         return price
 
-def fix_val_char(char_dict):
-    pass
+def fix_val_char(characteristics):
+    char_dict = characteristics[0]
+    for key, val in char_dict.items():
+        result = val.replace('\n                ', '')
+        res = result.replace('\n            ', '')
+        try:
+            char_dict[key] = float(res)
+        except:
+            char_dict[key] = res
+    return char_dict
 
 
 class LeroymerlinparserItem(scrapy.Item):

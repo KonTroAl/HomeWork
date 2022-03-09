@@ -31,6 +31,7 @@ class LeroymerlinparserPipeline:
         goods_dict['currency'] = item['currency']
         goods_dict['link'] = item['link']
         goods_dict['photos'] = item['photos']
+        goods_dict['characteristics'] = item['characteristics']
 
         print()
 
