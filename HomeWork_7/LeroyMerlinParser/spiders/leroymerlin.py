@@ -16,18 +16,19 @@ class LeroymerlinSpider(scrapy.Spider):
 
 
     def parse(self, response: HtmlResponse):
+        next_page = response.xpath('//a[@data-qa-pagination-item = "right"]')
+        if next_page:
+            yield response.follow(next_page, callback=self.parse)
+
         links = response.xpath("//a[@data-qa='product-name']")
         for link in links:
             yield response.follow(link, callback=self.parse_data)
 
     def parse_data(self, response: HtmlResponse):
-        print()
 
         headers_list = response.xpath('//dt//text()').getall()
         char_list = response.xpath('//dd//text()').getall()
         char_dict = dict(zip(headers_list, char_list))
-
-        print()
 
         loader = ItemLoader(item=LeroymerlinparserItem(), response=response)
         loader.add_xpath('name', "//h1/text()")
