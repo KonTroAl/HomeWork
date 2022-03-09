@@ -33,7 +33,30 @@ class LeroymerlinparserPipeline:
         goods_dict['photos'] = item['photos']
         goods_dict['characteristics'] = item['characteristics']
 
-        print()
+        try:
+            db_list = []
+
+            db_dict = goods.find({})
+
+            if db_dict:
+                for doc in db_dict:
+                    db_list.append(doc['link'])
+
+                last_id = len(db_list)
+
+                if goods_dict['link'] in db_list:
+                    for item in goods.find({'link': goods_dict['link']}):
+                        goods_dict['_id'] = item['_id']
+                        goods.update_one({'_id': item['_id']}, {'$set': goods_dict})
+                else:
+                    goods_dict['_id'] = last_id
+                    goods.insert_one(goods_dict)
+                    # count_of_news += 1
+            else:
+                goods.insert_one(goods_dict)
+                # count_of_letters += 1
+        except dke:
+            pass
 
         return item
 
